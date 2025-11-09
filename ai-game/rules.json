@@ -1,12 +1,11 @@
 {
     "SFW": true,
     "MAX_PARAGRAPHS": 2,
-    "INVENTORY_LIMIT": 5,
+    "INVENTORY_LIMIT": 2, //ignoring someone
     "COMMANDS": [
-        "look",
+        "say hi",
         "move <place>",
-        "take <item>",
-        "use <item> on <target>",
+        "give <compliment>",
         "talk <npc>",
         "inventory",
         "help",
@@ -15,17 +14,21 @@
         "quit"
     ],
     "LOCKS": {
-        "Ancient Gate": "have_key_a1"
+        "Go back home": [
+            "convo_w_prof",
+            "convo_w_friend",
+            "convo_w_classmate"
+        ]
     },
     "QUEST": {
-        "name": "Find the Crown",
-        "goal_flag": "crown_recovered",
-        "intro": "The village elder begs you to recover the stolen Crown."
+        "name": "Be the most social CS student of the day!",
+        "goal_flag": "convo_min_three_people",
+        "intro": "The CS student must touch grass in order to stay human. Be social."
     },
     "END_CONDITIONS": {
         "WIN_ALL_FLAGS": [
-            "crown_recovered",
-            "returned_to_village"
+            "talked_to_many_people",
+            "returned_to_home"
         ],
         "LOSE_ANY_FLAGS": [
             "hp_zero"
@@ -33,7 +36,7 @@
         "MAX_TURNS": 50
     },
     "START": {
-        "location": "Village Square",
+        "location": "Home",
         "inventory": [],
         "flags": {},
         "hp": 10
