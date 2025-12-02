@@ -1,9 +1,9 @@
 {
     "SFW": true,
     "MAX_PARAGRAPHS": 2,
-    "INVENTORY_LIMIT": 2, //ignoring someone
+    "INVENTORY_LIMIT": 2,
     "COMMANDS": [
-        "say hi",
+        "hi",
         "move <place>",
         "give <compliment>",
         "talk <npc>",
@@ -14,7 +14,7 @@
         "quit"
     ],
     "LOCKS": {
-        "Go back home": [
+        "Home": [
             "convo_w_prof",
             "convo_w_friend",
             "convo_w_classmate"

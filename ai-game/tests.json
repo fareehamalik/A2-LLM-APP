@@ -1,0 +1,87 @@
+[
+    {
+        "id": 1,
+        "input": "hi",
+        "type": "basic",
+        "expected_behaviour": "narration",
+        "note": "Standard greeting"
+    },
+    {
+        "id": 2,
+        "input": "inventory",
+        "type": "local_command",
+        "expected_behaviour": "Items:",
+        "note": "Check for local python command takes input"
+    },
+    {
+        "id": 3,
+        "input": "inventory",
+        "type": "local_command",
+        "expected_behaviour": "save",
+        "note": "Check if help menu list command"
+    },
+    {
+        "id": 4,
+        "input": "look around",
+        "type": "narrative",
+        "expected_behaviour": "narration",
+        "note": "LLM check"
+    },
+    {
+        "id": 5,
+        "input": "move Classroom",
+        "type": "movement",
+        "expected_behaviour": "state_change",
+        "note": "LLM should generate move action"
+    },
+    {
+        "id": 6,
+        "input": "talk Professor",
+        "type": "quest_trigger",
+        "expected_behaviour": "convo_w_prof",
+        "note": "LLM check for attempt at quest flag"
+    },
+    {
+        "id": 7,
+        "input": "talk Classmate",
+        "type": "quest_trigger",
+        "expected_behaviour": "convo_w_classmate",
+        "note": "LLM check for attempt at quest flag classmate, 2nd flag"
+    },
+    {
+        "id": 8,
+        "input": "give compliment",
+        "type": "action",
+        "expected_behaviour": "narration",
+        "note": "Check for custom command from rules.json"
+    },
+    {
+        "id": 9,
+        "input": "jump to outerspace",
+        "type": "illegal_action",
+        "expected_behaviour": "refusal",
+        "note": "Check that LLM should narrate that it is not possible"
+    },
+    {
+        "id": 10,
+        "input": "jump to outerspace",
+        "type": "illegal_action",
+        "expected_behaviour": "refusal",
+        "note": "Check that LLM should narrate that it is not possible"
+    },
+    {
+        "id": 11
+    },
+    {
+        "id": 12
+    },
+    {
+        "id": 13
+    },
+    {
+        "id": 14
+    },
+    {
+        "id": 15
+    }
+]

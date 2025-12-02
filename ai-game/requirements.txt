@@ -1,0 +1,3 @@
+python-dotenv forget if i removed this
+ollama
+chromadb
