@@ -4,6 +4,9 @@ Example session (5-10 turns) showing: locked move refusal, inventory cap, settin
 
 # Ollama AI - Game
 
+## Important note
+Assignment 2 builds upon my Activity for Ollama. This version uses a differen model and is implemented with RAG as the main new and focussed implementation.
+
 ## Installing OLLAMA
 LLAMA was downloaded and installed via https://ollama.com/download/windows for windows. I also inputted the command "pip install ollama" to integrate ollama and python
 
@@ -19,7 +22,7 @@ No venv was created for this assignment.
 To run the game, cd in your terminal to the ai-game folder. Then input "python main.py" within terminal and hit enter. Input your command and hit enter again. Unfortunately, there is an issue with parsing of json, so the proper formatting of output does not work. 
 
 ## Game concept
-### Below is the detailed game concept I had envisioned. Unfortunately, the learning curve and implementation was steep, and not everything could be implemented in a timely manner. However, I plan to complete this in my spare time.
+### Below is the detailed game concept I had envisioned. I have listed issues.
 
 I believe that the main issues lied in how I had formatted the rules.json. I was not able to translate my game idea to something understandable for a LLM. Furthermore, the fm.txt may have been too complex, as I was debugging issues I assumed more clarity would help from that file. Finally, the JSON parsing issues resulted in difficulty with saving and revieweing what the LLM was saying.
 
