@@ -1,20 +1,28 @@
 import os
-import chromadb
-
+import chromadb #wrong??
+#from chromadb.config import Settings
+#from chromadb import Client
+#client = Client() wrong??
 #chromadb setuo 
+import sys
+print(sys.path) #major issues rag file testing
 
 #chroma db filder, data persistence
 
 client = chromadb.PersistentClient(path="./chroma_db")
-collection = client.get_creat_collection(name="syllabus_lore")
-DATA_FILE = "RAG-data/syllabus.md" #getting file from directory
+
+#client = Client(Settings(chroma_db_impl="duckdb+parquet", persist_directory="./chroma_db"))
+collection = client.get_or_create_collection(name="syllabus_lore")
+#DATA_FILE = "RAG-data/syllabus.md" #getting file from directory
+DATA_FILE = os.path.join("RAG-data","syllabus.md") #exists no join
+
 
 #initialize rag, if no file checking for that
 def initialize():
     if collection.count()>0:
         return
     
-    if not os.path.exist(DATA_FILE):
+    if not os.path.exists(DATA_FILE):
         print(f"RAG warning {DATA_FILE} not found")
         return
     
@@ -30,22 +38,18 @@ def initialize():
     if documents: 
          collection.add(documents=documents, ids=ids) #chroma needs this
 
-
-
-
-    #w
-
-#retrieve context 
-def retrieve(query, top_n=2): #searching database for 2 most relevant lines
+#retrieve context - not retrieve (causing issue from mismatch)
+def retrieve_context(query, top_n=2): #searching database for 2 most relevant lines
     results = collection.query( #misplaced, issue below
              query_texts=[query],
-             top_n=1 #most accurate match
+             #top_n=1 #most accurate match
+             n_results=top_n
         )
 
 #return txt or empty string if nothing founf 
     if results['documents'] and results['documents'][0]:
         return results['documents'][0][0]
-    return""
+    return "" #return""
   # temporary list to store (chunk, similarity) pairs
   
 
@@ -53,7 +57,8 @@ def retrieve(query, top_n=2): #searching database for 2 most relevant lines
 #note, changed syllabus.txt to .md, instructor req
 #note online says md and txt the same 
 
-initialize_rag()
+#initialize_rag() error coz mismatch 
+initialize()
 '''
 unused code
 similarities = []

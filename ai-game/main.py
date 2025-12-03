@@ -1,9 +1,25 @@
 #importing 
 import json 
 import os
-import ollama #incase, was working without but slow
+
 import time 
 from datetime import datetime
+import sys
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))  #absparth(__file__))) #rag file
+#import sys
+
+import ollama #incase, was working without but slow
+
+print(sys.path) #major issues rag file testing
+
+#importing RAg module 
+try: 
+    from rag import retrieve_context
+except ImportError:
+    print("WARNING! {e}")  # ADDED REAL ERRORrag.py not found, RAG component will fail")
+    def retrieve_context(q): return "" #fallback incase fail
+
+
 
 
 #MAX_PARAGRAPHS = 2 #document shows json and say to do this in python, recheck later
@@ -40,11 +56,6 @@ except FileNotFoundError as e:
     print("f: ERROR: missing required rules fine:{e}")
     exit()
 
-#state initializations
-state = RULES["START"].copy() #avoids overriwting by ollama
-state["turns"] =0 #turn counter
-transcript = []
-
 #telemtry helper function
 def log_telemetry(data):
     try: 
@@ -53,16 +64,33 @@ def log_telemetry(data):
     except Exception as e:
         print(f"Telemtry Error: could not write log: {e}")
 
+#safety
+def check_safe(user_input):
+    if len(user_input) > 1000: #chars, i have diff around recheck before submission 
+        return False, "Prompt too long"
+    forbidden = ["ignore previous", "system prompt", "forget rules"] #helpful for test json
+    if any(phrase in user_input.lower() for phrase in forbidden):
+        return False, "Sorry, I cannot answer that. I was not trained to respond to such prompts, try again."
+    return True, ""
+
+#state initializations
+state = RULES["START"].copy() #avoids overriwting by ollama
+state["turns"] =0 #turn counter
+transcript = []
+
+
+
 #prompting model , changed to build_prompt
 def build_prompt(player_input, state): #was commented not sure why, accdient
 
 #RAG enhancement
-    retrieved_syllabus = retrieved_context(player_input)
+    retrieved_syllabus = retrieve_context(player_input)
 
 #if smth found ing rag
     rag_section =""
     if retrieved_syllabus:
-        rag_section = {retrieved_syllabus}
+        #rag_section = {retrieved_syllabus}
+        rag_section = retrieved_syllabus #probs fix the output later todo
         #print(f"successful RAG retrieval: {}")
         print(f"successful RAG retrieval: {retrieved_syllabus}\n") #terminal view
 
@@ -80,6 +108,8 @@ RULES:
 CURRENT_STATE:
 {state_text}
 
+{rag_section}
+
 PLAYER_INPUT:
 {player_input}
 """
@@ -90,59 +120,71 @@ PLAYER_INPUT:
     ]
 
 #ollama call
-def call_ollama(prompt, model="qwen3:0.6b"): #recheck correct name
-
+#def call_ollama(prompt, model="qwen3:0.6b"): #recheck correct name
+def call_ollama(prompt, model="llama3.2"):
+    
 #telemtry data added 
     start_time = time.time()
     telemetry_data = {"model": model, "timestamp":datetime.now().isoformat(), "success": False, "pathway":"game_turn"}
 
+    response = {}
+    raw_content = ""
+
     try:
         response= ollama.chat(
             model=model,
-            messages=messages,
+            #message=prompt,
+            messages = [{"role": "user", "content":prompt}],
             format="json" #json output 
         )
         end_time = time.time()
 
-        raw_content=response['message']['content']
-        ollama_reply = json.loads(raw_content)
+#the json breaking issue here todo
+        #raw_content=response['message']['content']
+        #ollama_reply = json.loads(raw_content)
 
+        raw_content=response.get('message', {}).get('content', '')
+        try: 
+            ollama_reply = json.loads(raw_content)
+        except Exception:
+            print(f"LLM returned non-json output {raw_content}") #see if non json gets out
+            ollama_reply ={
+                "narration": raw_content if raw_content else "Game master failed response, json issues", 
+                "state_change": []
+            }
+            
+
+
+
+#if success
         telemetry_data.update({
             "success": True,
-            "latency": (end_time-start_time)
+            "latency": (end_time-start_time),
             "tokens_in": response.get('prompt_eval_count', 'N/A'),
             "tokens_out": response.get('eval_count', 'N/A')
         })
 
         log_telemetry(telemetry_data)
+
         return{
-            "narration": ollama_reply('narration', 'N/A'),
+            "narration": ollama_reply.get('narration', 'N/A'), #forgot .get
             "state_change": ollama_reply.get('state_change',[]),
             "raw_output": raw_content #transcript
         }
     
-
-    except json.JSONEncoder as e:
-        telemetry_data.update({"latency": (time.time()-start_time)})
+    #if fail
+    #except json.JSONEncoder as e:
+    except Exception as e:
+        telemetry_data.update({"latency": (time.time()-start_time)}) #vals not outputting i think i got time wrong
         log_telemetry(telemetry_data)
 
     #not json, handle that output from ollama
     raw_output = response.get('message', {}).get('content', 'no output given by OLLAMA!')
     print(f"LLM ERROR, invalid JSON received. Raw output: {raw_output}")
-
-    return{
-        "narration: Game master failed to parse thoughts, try rephrasing.",
-        "state_change:"[],
-        "raw_output:" raw_output
-    }
-
-except Exception as e:
-log_telemetry(telem)
-
-   
-
- 
-
+    return{  #the same line cause bad syntax
+        "narration": "Game master failed to parse thoughts, try rephrasing.",
+        "state_change":[]}
+       
 #HELPER FUNCTIONS 
 #state changes, looping (MVPs)
 def state_changes(updates):
@@ -190,10 +232,6 @@ def load_game():
     else: 
         print("No saved game found.") #TODO: remove later for ollama to do
 
-
-
-
-
 #End condition 
 def end_condition_check():
     #WIN when all WIN_ALL_FLAGS true and/or after a win narration.
@@ -208,55 +246,66 @@ def end_condition_check():
     return None 
 
 #TODO: handling of commands RECHECK IF THIS SHOULD ONLY BE IN JSON
-while True: #need looping to use continue
-    player_input = input("\n ").strip().lower()#handling user input
+def run_game():
+    while True: #need looping to use continue
+        player_input = input("\n ").strip().lower()#handling user input
     
     #if player_input not in RULES["COMMANDS"]:
        # print("Illegal command, try one of ", ",".join(RULES["COMMANDS"]))
-    if player_input == "inventory":
-        print("Inventory:", state["inventory"])
-        continue
-    elif player_input == "save":
-        save_game()
-        continue
-    elif player_input =="load":
-        load_game()
-        continue
-    elif player_input =="help":
-        print("Commands:", ",".join(RULES["COMMANDS"]))
-        continue
-    elif player_input =="quit":
-        print("Game quit!") #TODO: figure out way for OLLAMAto do
-        break
+        if player_input == "inventory":
+            print("Inventory:", state["inventory"])
+            continue
+        elif player_input == "save":
+            save_game()
+            continue
+        elif player_input =="load":
+            load_game()
+            continue
+        elif player_input =="help":
+            print("Commands:", ",".join(RULES["COMMANDS"]))
+            continue
+        elif player_input =="quit":
+            print("Game quit!") #TODO: figure out way for OLLAMAto do
+            break
+
+    #safety check 
+        safe, message = check_safe(player_input)
+        if not safe:
+            print(f"System: {message}")
+            continue
 
     #LLM 
-    prompt = build_prompt(player_input, state)
-    gm_output=call_ollama(prompt)
+        prompt = build_prompt(player_input, state)
+        gm_output=call_ollama(prompt)
 
 #story narration, placeholder  test
-    narration = gm_output.get("text", "...")
-    print(f"\n{narration}\n")
+        #narration = gm_output.get("text", "...") #mismatch json
+        narration = gm_output.get("narration", "...")
+        print(f"\n{narration}\n")
 
-    #state changes and recording, gm=game master
-    state_changes(gm_output.get("state_change", [])) #bracket issue
-    transcript.append({"player": player_input, "gm": gm_output})
-    state["turns"]+=1
+        #state changes and recording, gm=game master
+        state_changes(gm_output.get("state_change", [])) #bracket issue
+        transcript.append({"player": player_input, "gm": gm_output})
+        state["turns"]+=1
 
-    #end condition check 
-    end_status=end_condition_check()
-    if end_status:
-        if end_status == "win":
-         print("\n you win")
-        #print({end_status})
-        else: 
-         print("\n game over")
-        break
+        #end condition check 
+        end_status=end_condition_check()
+        if end_status:
+            if end_status == "win":
+                print("\n you win")
+            #print({end_status})
+            else: 
+                print("\n game over")
+            break
 
-#TODO: check Transcript saving in correct struct 
-with open(TRANSCRIPT_FILE, "w") as f:
-    json.dump(transcript, f, indent=2)
-   
+    #TODO: check Transcript saving in correct struct 
+    with open(TRANSCRIPT_FILE, "w") as f:
+        json.dump(transcript, f, indent=2)
+    
 
+#entry 
+if __name__ == "__main__":
+    run_game() #TODO: change
 
 #REFERENCES
 #https://www.geeksforgeeks.org/python/json-load-in-python/
@@ -281,6 +330,14 @@ with open(TRANSCRIPT_FILE, "w") as f:
 
 #-------------------------OLD/UNUSED CODE----------------------
 '''
+ #"raw_output:" raw_output
+   
+
+
+except Exception as e:
+log_telemetry(telem)
+   
+
 REMOVED NOW I HAVE OLLAMA
  result = subprocess.run(
         ["ollama", "run", model],

@@ -62,26 +62,26 @@ https://www.arsturn.com/blog/creating-next-gen-ai-npcs-with-local-llms-ollama
 
 https://www.cohorte.co/blog/using-ollama-with-python-step-by-step-guide
 
-#https://www.geeksforgeeks.org/python/json-load-in-python/
+https://www.geeksforgeeks.org/python/json-load-in-python/
 
-#https://www.geeksforgeeks.org/python/reading-and-writing-json-to-a-file-in-python/
+https://www.geeksforgeeks.org/python/reading-and-writing-json-to-a-file-in-python/
 
-#https://collabnix.com/using-ollama-with-python-step-by-step-guide/
+https://collabnix.com/using-ollama-with-python-step-by-step-guide/
 
-#https://docs.python.org/3/library/functions.html#repr
+https://docs.python.org/3/library/functions.html#repr
 
-#https://www.sitepoint.com/test-data-json-example/
+https://www.sitepoint.com/test-data-json-example/
 
-#https://dev.to/sophyia/how-to-build-a-rag-solution-with-llama-index-chromadb-and-ollama-20lb
+https://dev.to/sophyia/how-to-build-a-rag-solution-with-llama-index-chromadb-and-ollama-20lb
 
-#https://huggingface.co/blog/ngxson/make-your-own-rag
+https://huggingface.co/blog/ngxson/make-your-own-rag
 
-#https://www.datacamp.com/tutorial/chromadb-tutorial-step-by-step-guide
+https://www.datacamp.com/tutorial/chromadb-tutorial-step-by-step-guide
 
-#https://docs.python.org/3/tutorial/inputoutput.html
+https://docs.python.org/3/tutorial/inputoutput.html
 
-#https://stackoverflow.com/questions/70510297/how-to-strip-a-certain-piece-of-text-from-each-line-of-a-text-file
+https://stackoverflow.com/questions/70510297/how-to-strip-a-certain-piece-of-text-from-each-line-of-a-text-file
 
-#https://stackoverflow.com/questions/19184335/is-there-a-need-for-rangelena
+https://stackoverflow.com/questions/19184335/is-there-a-need-for-rangelena
 
-#https://docs.trychroma.com/docs/collections/add-data
+https://docs.trychroma.com/docs/collections/add-data
